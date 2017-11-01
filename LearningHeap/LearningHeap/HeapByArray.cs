@@ -10,9 +10,11 @@ namespace LearningHeap
     {
         private int[] array;
         private int currentPosition = 0;
-        public HeapByArray()
+        private int capacity;
+        public HeapByArray(int maxCapacity)
         {
-            array = new int[20];
+            array = new int[maxCapacity];
+            capacity = maxCapacity;
         }
 
         private int GetLeftChildIndex(int parentIndex)
@@ -30,33 +32,50 @@ namespace LearningHeap
             return (childIndex - 1) / 2;
         }
 
-        public void Insert (int value)
+        private void Swap(ref int x, ref int y)
         {
-            if(array[0] == 0)
+            int temp = x;
+            x = y;
+            y = temp;
+        }
+
+        public void Insert(int value)
+        {
+            currentPosition++;
+            int i = currentPosition - 1;
+            array[i] = value;
+
+            while (i != 0 && array[GetParentIndexFromChild(i)] > array[i])
             {
-                array[currentPosition] = value;
+                int pIndex = GetParentIndexFromChild(i);
+                Swap(ref array[pIndex], ref array[i]);
+                // Move up the heirarchy to check the above linkage
+                i = pIndex;
+            }
+        }
+
+        public void Delete(int index)
+        {
+            array[index] = 0;
+            int leftChild = GetLeftChildIndex(index);
+            int rightChild = GetRightChildIndex(index);
+
+            if (leftChild * 2 > capacity || rightChild * 2 > capacity)
+                return;
+
+            if(array[leftChild] > array[rightChild])
+            {
+                Swap(ref array[index], ref array[rightChild]);
+                Delete(rightChild);
             }
             else
             {
-                array[currentPosition] = value;
-
-                for(int i = currentPosition + 1; i > 0; i = i/ 2)
-                {
-                    int pIndex = GetParentIndexFromChild(currentPosition);
-                    if(array[pIndex] > array[currentPosition]){
-                        int temp = array[pIndex];
-                        array[pIndex] = value;
-                        array[currentPosition] = temp;
-                    }
-                }
+                Swap(ref array[index], ref array[leftChild]);
+                Delete(leftChild);
             }
 
-            currentPosition++;
+            currentPosition--;
         }
 
-        public void Delete(int value)
-        {
-
-        }
     }
 }
